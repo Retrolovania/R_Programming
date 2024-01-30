@@ -6,8 +6,10 @@ First <- c(1,1,1,1,0,0,0,0,NA,1)
 Second <- c(0,0,1,1,0,0,1,1,1,1)
 FinalDecision <- c(0,1,0,1,0,1,0,1,1,1)
 
+#Create data frame with these vectors.
 blood <- data.frame(Frequency, BP, First, Second, FinalDecision)
 
+# Making the boxplots...
 ggplot(blood, aes(x = factor(First, labels = c("Good", "Bad")), y = BP, fill = factor(First))) +
   geom_boxplot() +
   labs(x = "1st Doctor's Rating", y = "Blood Pressure") +
@@ -18,5 +20,6 @@ ggplot(blood, aes(x = factor(Second, labels = c("Good", "Bad")), y = BP, fill = 
   labs(x = "2nd Doctor's Rating", y = "Blood Pressure") +
   scale_fill_manual(values = c("mediumpurple", "lightblue"), name = "Rating", labels = c("Good", "Bad"))
 
+# And our histogram. R's default hist() is good enough for this application.
 hist(blood$BP, main = "Patient Blood Pressure", xlab="Blood Pressure")
 
