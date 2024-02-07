@@ -1,0 +1,110 @@
+---
+title: "Week 5: Lab - Word Cloud Chapter Challenge"
+author: "Adam Saoud"
+date: "2-5-2024"
+output: html_document
+---
+
+---
+
+# Instructions
+Create a word cloud using the `text` column from a real twitter dataset 
+(sample.csv).
+
+---
+
+```{r setup, message = FALSE}
+library(wordcloud)
+library(wordcloud2)
+library(tm)
+
+
+
+```
+
+# Step 1. Load and Clean the Data
+Load in the `sample.csv` dataset from this project's data folder. Investigate the data structure, and read in "relevant" data for a text analysis. 
+Please make sure you transform the document to lowercase, delete stopwords & numbers & punctuation (1 point).
+
+```{r, "Step 1"}
+sample <- read.csv("data/sample.csv")
+sample$text <- tolower(sample$text)
+sample$text <- removePunctuation(sample$text)
+sample$text <- removeNumbers(sample$text)
+
+s_corpus <- VCorpus(VectorSource(sample$text))
+s_corpus <- tm_map(s_corpus, removeWords, stopwords("en"))
+sample$text <- sapply(s_corpus, as.character)
+
+
+```
+
+---
+
+# Step 2. Adjust the Stopwords
+Add "can" and "just" to the stopwords list, then select/add two more stopwords of your choice. Write your rationale for choosing these two stopwords. You may need to this step after looking at the first word cloud results (1 point). 
+
+```{r, "Step 2"}
+stop_words <- c(stopwords("en"), "can", "just", "virginamerica", "gate")
+#The name of the airline is repeated so often that it being present is a little unneeded, and "gate" isn't really needed since the rest of the words in all tweets it appears it apply the context of it being there.
+
+s_corpus <- tm_map(s_corpus, removeWords, stop_words)
+sample$text <- sapply(s_corpus, as.character)
+
+```
+
+---
+
+# Step 3. Adjust the Theme
+Use five colors and "Dark2" for color theme. If you use the data as is, it will only show three colors. Use available attributes and data manipulation to show all five colors instead of three. Produce a similar graph using wordcloud2 (1 point).
+
+```{r, "Step 3"}
+words.sample <- VectorSource(sample$text)
+corpus.words <- Corpus(words.sample)
+corpus.words
+
+tdm_words <- TermDocumentMatrix(corpus.words)
+inspect(tdm_words[1:20,1:20])
+
+words <- as.matrix(tdm_words)
+wordCount <- rowSums(words)
+head(wordCount)
+
+wordCount <- sort(wordCount, decreasing=TRUE)
+head(wordCount)
+
+wordcloud(names(wordCount), wordCount)
+
+wordcloud2(data = data.frame(word = names(wordCount[1:100]), freq = wordCount[1:100]), 
+           color = "blue",
+           backgroundColor = "black",
+           size = 1)
+
+```
+
+---
+
+# Step 4. Analysis
+Does the word cloud convey the key points of the document? (1 point). Critical thinking is important. Investigate the raw data (word distribution, sentiment analysis results), does the current word cloud really convey the key points of the raw data? If not, how would you improve the process to produce better results so that the results could be more meaningful to the company? Did you try everything to improve the meanings of the word cloud?
+
+
+> In my opinion, the word cloud makes it very clear what the key points of the document are. The majority of the messages are about people discussing the status of their flight, whether it be that it's cancelled, that they're boarding, checking their flight status on a website, etc. I'd say one way to better showcase the messages the cloud shows would be to color certain words that imply certain things differently. For example, color words like "cancelled" and "boarding" red to imply they're referring to the status of a given passenger's flight. Unfortunately, I couldn't make this work properly in the cloud presented here.
+
+---
+
+# Step 5. Compile
+Submit the compiled file. 
+The wordcloud may prevent you from compiling. If so, do the following: 
+
+```
+jpeg('p1.jpg')  
+wordcloud(cloudFrame.t$word, cloudFrame.t$freq)  
+dev.off()
+```
+This will make the graphs save in the current working directory. 
+
+```{r, "Step 5"}
+#No compiling issue present.
+
+
+```
