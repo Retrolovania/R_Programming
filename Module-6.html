@@ -11,9 +11,9 @@
 
 <meta name="author" content="User" />
 
-<meta name="date" content="2024-02-07" />
+<meta name="date" content="2024-02-14" />
 
-<title>Module-5.R</title>
+<title>Module-6.R</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,54 +350,39 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Module-5.R</h1>
+<h1 class="title toc-ignore">Module-6.R</h1>
 <h4 class="author">User</h4>
-<h4 class="date">2024-02-07</h4>
+<h4 class="date">2024-02-14</h4>
 
 </div>
 
 
-<pre class="r"><code>A=matrix(1:100, nrow=10)
-B=matrix(1:1000, nrow=10)
+<pre class="r"><code>A=matrix(c(2,0,1,3), ncol=2)
+B=matrix(c(5,2,4,-1), ncol=2)
 
-#Neither matrix can be used with solve() as-is in order to find the 
-#inverse, so let&#39;s do some modifying to them.
+#1. Let&#39;s try to add and subtract the A &amp; B matricies.
+sumMatrix &lt;- A + B
+sumMatrix</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    7    5
+## [2,]    2    2</code></pre>
+<pre class="r"><code>diffMatrix &lt;- A - B
+diffMatrix</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]   -3   -3
+## [2,]   -2    4</code></pre>
+<pre class="r"><code>#2. That went well. Now, let&#39;s experiment with diag() and make a size 4 matrix.
+diagMatrix_1 &lt;- diag(x = c(4,1,2,3), nrow = 4, ncol = 4)
 
-#First, let&#39;s transpose the matrices:
-t_A &lt;- t(A)
-t_B &lt;- t(B)
+#3. Let&#39;s do some more, and try adding values to a matrix.
+new_values &lt;- c(3, 3, 3, 3, 3)
 
-#Now, we need to make vectors to multiply the matrices by.
-# 10 for A, and 100 for B.
-a &lt;- replicate(10, as.integer(abs(rnorm(10)*10)))
-b &lt;- replicate(10, as.integer(abs(rnorm(100)*100)))
+#Make the base matrix.
+diagMatrix_2 &lt;- diag(new_values)
 
-#Time to multiply.
-mA &lt;- t_A*a
-mB &lt;- t_B*b
-
-#Now, let&#39;s convert the vectors to matrices.
-a.2 &lt;- matrix(a, nrow=10)
-b.2 &lt;- matrix(b, nrow=10)
-
-#Multiplying the matrices together...
-nA &lt;- a.2%*%mA
-nB &lt;- b.2%*%mB
-
-#Let&#39;s check if we can solve these now.
-det(nA)</code></pre>
-<pre><code>## [1] -1.844317e+37</code></pre>
-<pre class="r"><code>det(nB)</code></pre>
-<pre><code>## [1] -1.190569e+77</code></pre>
-<pre class="r"><code>#I think we can now! Let&#39;s solve them.
-
-sA &lt;- solve(nA)
-sB &lt;- solve(nB)
-
-det(sA)</code></pre>
-<pre><code>## [1] -5.422061e-38</code></pre>
-<pre class="r"><code>det(sB)</code></pre>
-<pre><code>## [1] -8.399345e-78</code></pre>
+#Insert values into rows and columns.
+diagMatrix_2[1, diagMatrix_2[1,] == 0] &lt;- 1
+diagMatrix_2[diagMatrix_2[,1] == 0, 1] &lt;- 2</code></pre>
 
 
 
