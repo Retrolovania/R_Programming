@@ -1,0 +1,161 @@
+---
+title: "Week 11: Lab - Build Your Own Shiny App"
+author: 'Adam Saoud'
+date: '3-18-2024'
+output: html_document
+runtime: shiny
+---
+
+---
+
+# Instructions
+Create a scatter plot interactive application. In this application, use the 
+census data from earlier in the book, and let the user determine the X-axis, 
+the Y-axis, the color (optional), and the size based on what the user would 
+like to see. To do this, you will need multiple-choice menus, one for each 
+selection the user needs to make. You can do this by following the direction 
+written in the text book. Enjoy. 
+
+**For your information:**   
+The data is available through this link: 
+
+* http://www2.census.gov/programs-surveys/popest/tables/2010-2011/state/totals/nst-est2011-01.csv
+
+
+Add all of your libraries that you use for this assignment here.
+```{r setup}
+# Add your library below.
+
+library(shiny)
+library(ggplot2)
+```
+
+---
+
+# Step 1 - Build the UI
+Build the UI below.
+
+```{r, "Step 1"}
+ui <- fluidPage(
+                  titlePanel("2010-2011 Census"),
+                  sidebarLayout(
+                    sidebarPanel(
+    #select variables for y-axis
+    selectInput(inputId = "y",
+                label = "Y-axis",
+                choices = c("July 2010" = "july10pop",
+                          "July 2011" = "july11pop",
+                  "Region of Country" = "region",
+                  "Population Change" = "popChange",
+                  "% of Pop. Change" = "percentChange"),
+                  selected = "popChange"),
+    
+    #Select variables for x-axis        
+    selectInput(inputId = "x",
+                label = "X-axis",
+                choices = c("July 2010" = "july10pop",
+                          "July 2011" = "july11pop",
+                  "Region of Country" = "region",
+                  "Population Change" = "popChange",
+                  "% of Pop. Change" = "percentChange"),
+                  selected = "july11pop"),
+    
+    #Set alpha level
+    sliderInput(inputId = "alpha",
+                label = "Alpha",
+                min = 0, max = 1,
+                value = 0.5),
+    
+    #Select variable for color
+    selectInput(inputId = "z",
+                label = "Color by:",
+                choices = c("July 2010" = "july10pop",
+                          "July 2011" = "july11pop",
+                  "Region of Country" = "region",
+                  "Population Change" = "popChange",
+                  "% of Pop. Change" = "percentChange"),
+                selected = "region"),
+  ),
+    
+    
+    #Output: Show scatterplot
+    mainPanel(
+      plotOutput(outputId = "scatterplot"))))
+```
+
+---
+
+# Step 2 - Build the Server
+Build the Server below.
+```{r, "Step 2"}
+server <- function(input, output) {
+  # Read census data
+  dfStates <- readCensus()
+  
+  # Data preprocessing
+  dfStates <- dfStates[dfStates$stateName != "District of Columbia",]
+  dfStates$region <- state.region
+  dfStates$stateName <- tolower(dfStates$stateName)
+  dfStates$popChange <- dfStates$july11pop - dfStates$july10pop
+  dfStates$percentChange <- dfStates$popChange/dfStates$july10pop * 100
+  
+  # Named vector to map variable names to descriptive labels
+  variable_labels <- c("july10pop" = "July 2010",
+                       "july11pop" = "July 2011",
+                       "region" = "Region of Country",
+                       "popChange" = "Change in Population",
+                       "percentChange" = "Percent Change in Population")
+  
+  # Reactive expression to compute labels
+  labels <- reactive({
+    list(x = variable_labels[input$x],
+         y = variable_labels[input$y],
+         z = variable_labels[input$z])
+  })
+  
+  # Render plot
+  output$scatterplot <- renderPlot({
+    ggplot(dfStates, aes_string(x = input$x, y = input$y, color = input$z)) +
+      geom_point(alpha = input$alpha) +
+      labs(x = labels()$x, y = labels()$y, color = labels()$z)
+  })
+}
+
+#Read in the data
+readCensus <- function(){
+    urlToRead <-
+      "http://www2.census.gov/programs-surveys/popest/tables/2010-2011/state/totals/nst-est2011-01.csv"
+    #Clean the data
+    testFrame <- read.csv(url(urlToRead))
+    testFrame <- testFrame[-1:-8,]
+    testFrame <- testFrame[,1:5]
+    testFrame$stateName <- testFrame[,1]
+    testFrame <- testFrame[,-1]
+    testFrame <- testFrame[-52:-58,]
+    testFrame$stateName <- gsub("\\.","",testFrame$stateName)
+    #Convert columns to numeric
+    testFrame$april10census <- gsub(",", "", testFrame$X)
+    testFrame$april10base <- gsub(",", "", testFrame$X.1)
+    testFrame$july10pop <- gsub(",", "", testFrame$X.2)
+    testFrame$july11pop <- gsub(",", "", testFrame$X.3)
+    testFrame$april10census <- as.numeric(gsub(" ", "", testFrame$april10census))
+    testFrame$april10base <- as.numeric(gsub(" ", "", testFrame$april10base))
+    testFrame$july10pop <- as.numeric(gsub(" ", "", testFrame$july10pop))
+    testFrame$july11pop <- as.numeric(gsub(" ", "", testFrame$july11pop))
+    testFrame <- testFrame[,-1:-4]
+    #remove the row names
+    rownames(testFrame) <- NULL
+    return(testFrame)
+}
+
+```
+
+---
+
+# Step 3 - Create the Shiny App
+Deploy the shiny app.
+```{r, "Step 3"}
+
+shinyApp(ui = ui, server = server)
+
+```
