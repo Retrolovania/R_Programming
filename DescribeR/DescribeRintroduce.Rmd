@@ -1,0 +1,49 @@
+---
+title: "DescribeR Process"
+author: "Adam Saoud"
+date: "2024-03-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document created for showcasing the development of DescribeR, my first R package and the final project for LIS-4370. The main goal of this package is to provide functions that give comprehensive descriptions, summaries, and visualizations of any dataset given so as to aid in further understanding of said data by the user.
+
+Function 1: visualize_data()
+This is the function that will create varying visualizations depending on the input data and plot type specified.
+Example usage:
+
+```
+library(DescribeR)
+# Generate a histogram for a numeric variable
+visualize_data(data = iris, x_var = "Sepal.Length", plot_type = "histogram")
+# Generate a box plot for a numeric variable grouped by a categorical variable
+visualize_data(data = iris, x_var = "Species", y_var = "Petal.Length", plot_type = "boxplot")
+```
+
+Function 1: detect_outliers()
+This function identifies potential outliers in a given dataset.
+Takes a data input as well as inputs for the threshold, above which data could be considered an outlier, and vars (specific columns where outliers need to be detected in). Example:
+
+```
+library(DescribeR)
+
+# Detect outliers in the 'Sepal.Length' variable of the iris dataset
+outliers <- detect_outliers(data = iris, vars = "Sepal.Length")
+print(outliers)
+```
+
+Function 3: impute_missing_values()
+This functions attempts to add in values missing from a dataset (like NA entries) using specified imputation methods.
+
+```
+library(DescribeR)
+
+# Impute missing values using mean imputation
+imputed_data <- impute_missing_values(data = iris, method = "mean")
+print(imputed_data)
+```
